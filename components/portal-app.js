@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { DEAL_TAG_OPTIONS, EXPLICIT_OPTIONS, INITIAL_FORM_VALUES, RELEASE_TYPES, STEP_DEFINITIONS, WATERFALL_OPTIONS } from "@/lib/release-config";
+import { EXPLICIT_OPTIONS, INITIAL_FORM_VALUES, RELEASE_TYPES, STEP_DEFINITIONS, WATERFALL_OPTIONS } from "@/lib/release-config";
 
 function getTrackPreview(value) {
   return value
@@ -25,16 +25,6 @@ function getStepErrors(releaseType, formValues, files, stepId) {
     }
   }
 
-  if (stepId === "distribution") {
-    if (!formValues.dealTags.length) {
-      errors.dealTags = "Select at least one deal tag.";
-    }
-
-    if (!formValues.distributor.trim()) {
-      errors.distributor = "Distributor is required.";
-    }
-  }
-
   if (stepId === "timeline") {
     if (!formValues.mainGenre.trim()) {
       errors.mainGenre = "Main genre is required.";
@@ -45,7 +35,7 @@ function getStepErrors(releaseType, formValues, files, stepId) {
     }
   }
 
-  if (stepId === "publishing" && releaseType === "single" && formValues.waterfallRelease === "Yes" && !formValues.waterfallTracklist.trim()) {
+  if (stepId === "song" && releaseType === "single" && formValues.waterfallRelease === "Yes" && !formValues.waterfallTracklist.trim()) {
     errors.waterfallTracklist = "Provide the waterfall track order.";
   }
 
@@ -75,15 +65,6 @@ export default function PortalApp({ initialSession }) {
     setFormValues((current) => ({
       ...current,
       [field]: value
-    }));
-  }
-
-  function toggleDealTag(option) {
-    setFormValues((current) => ({
-      ...current,
-      dealTags: current.dealTags.includes(option)
-        ? current.dealTags.filter((entry) => entry !== option)
-        : [...current.dealTags, option]
     }));
   }
 
@@ -254,7 +235,7 @@ export default function PortalApp({ initialSession }) {
                     <h2 className="portal-title">Welcome back{session.name ? `, ${session.name}` : ""}.</h2>
                     <p className="portal-copy">
                       Signed in as {session.email}. Choose the release format before moving through
-                      the six submission tabs.
+                      the submission tabs.
                     </p>
                     <div className="release-switcher__grid">
                       <button
@@ -342,6 +323,18 @@ export default function PortalApp({ initialSession }) {
                           />
                         </div>
 
+                        <div className="field">
+                          <label className="field-label" htmlFor="labelName">
+                            Label Name
+                          </label>
+                          <input
+                            id="labelName"
+                            className="text-input"
+                            value={formValues.labelName}
+                            onChange={(event) => updateField("labelName", event.target.value)}
+                          />
+                        </div>
+
                         {releaseType === "single" ? (
                           <div className="field">
                             <label className="field-label" htmlFor="featuredArtists">
@@ -358,29 +351,31 @@ export default function PortalApp({ initialSession }) {
 
                         <div className="field field--full">
                           <label className="field-label" htmlFor="tracklist">
-                            {releaseType === "album"
-                              ? "Tracklist"
-                              : "Waterfall track list preview"}
+                            Tracklist
                             {releaseType === "album" ? <span className="required-mark"> *</span> : null}
                           </label>
-                          <textarea
-                            id="tracklist"
-                            className="textarea"
-                            value={releaseType === "album" ? formValues.tracklist : formValues.waterfallTracklist}
-                            onChange={(event) =>
-                              updateField(releaseType === "album" ? "tracklist" : "waterfallTracklist", event.target.value)
-                            }
-                            placeholder="Enter one track title per line."
-                          />
-                          {errors.tracklist || errors.waterfallTracklist ? (
-                            <div className="field-help">{errors.tracklist || errors.waterfallTracklist}</div>
-                          ) : null}
-                          {trackPreview ? (
-                            <div className="track-preview">
-                              <strong>Numbered Preview</strong>
-                              {trackPreview}
+                          {releaseType === "album" ? (
+                            <>
+                              <textarea
+                                id="tracklist"
+                                className="textarea"
+                                value={formValues.tracklist}
+                                onChange={(event) => updateField("tracklist", event.target.value)}
+                                placeholder="Enter one track title per line."
+                              />
+                              {errors.tracklist ? <div className="field-help">{errors.tracklist}</div> : null}
+                              {trackPreview ? (
+                                <div className="track-preview">
+                                  <strong>Numbered Preview</strong>
+                                  {trackPreview}
+                                </div>
+                              ) : null}
+                            </>
+                          ) : (
+                            <div className="field-help">
+                              Waterfall releases are singles with multiple previously released singles or a single attached to a new release.
                             </div>
-                          ) : null}
+                          )}
                         </div>
 
                         <div className="field">
@@ -400,42 +395,52 @@ export default function PortalApp({ initialSession }) {
                             ))}
                           </select>
                         </div>
-                      </div>
-                    ) : null}
 
-                    {currentStep.id === "distribution" ? (
-                      <div className="field-grid">
-                        <div className="field field--full">
-                          <span className="field-label">
-                            Please check all that apply to this release <span className="required-mark">*</span>
-                          </span>
-                          <div className="choice-grid">
-                            {DEAL_TAG_OPTIONS.map((option) => (
-                              <label className="choice-pill" key={option}>
-                                <input
-                                  type="checkbox"
-                                  checked={formValues.dealTags.includes(option)}
-                                  onChange={() => toggleDealTag(option)}
-                                />
-                                <span>{option}</span>
-                              </label>
-                            ))}
+                        {releaseType === "single" ? (
+                          <div className="field">
+                            <label className="field-label" htmlFor="waterfallRelease">
+                              Waterfall Release? <span className="required-mark">*</span>
+                            </label>
+                            <select
+                              id="waterfallRelease"
+                              className="select"
+                              value={formValues.waterfallRelease}
+                              onChange={(event) => updateField("waterfallRelease", event.target.value)}
+                            >
+                              <option value="">Select one</option>
+                              {WATERFALL_OPTIONS.map((option) => (
+                                <option key={option} value={option}>
+                                  {option}
+                                </option>
+                              ))}
+                            </select>
+                            <div className="field-help">
+                              Waterfall releases are singles with multiple previously released singles or a single attached to a new release.
+                            </div>
                           </div>
-                          {errors.dealTags ? <div className="field-help">{errors.dealTags}</div> : null}
-                        </div>
-                      <div className="field">
-                        <label className="field-label" htmlFor="distributor">
-                          Distributor <span className="required-mark">*</span>
-                        </label>
-                        <input
-                          id="distributor"
-                          className="text-input"
-                          value={formValues.distributor}
-                          onChange={(event) => updateField("distributor", event.target.value)}
-                          placeholder="Enter distributor name"
-                        />
-                        {errors.distributor ? <div className="field-help">{errors.distributor}</div> : null}
-                      </div>
+                        ) : null}
+
+                        {releaseType === "single" && formValues.waterfallRelease === "Yes" ? (
+                          <div className="field field--full">
+                            <label className="field-label" htmlFor="waterfallTracklist">
+                              Please indicate the titles and order of songs included in the release.
+                            </label>
+                            <textarea
+                              id="waterfallTracklist"
+                              className="textarea"
+                              value={formValues.waterfallTracklist}
+                              onChange={(event) => updateField("waterfallTracklist", event.target.value)}
+                              placeholder="One track title per line."
+                            />
+                            {errors.waterfallTracklist ? <div className="field-help">{errors.waterfallTracklist}</div> : null}
+                            {trackPreview ? (
+                              <div className="track-preview">
+                                <strong>Numbered Preview</strong>
+                                {trackPreview}
+                              </div>
+                            ) : null}
+                          </div>
+                        ) : null}
                       </div>
                     ) : null}
 
@@ -462,6 +467,17 @@ export default function PortalApp({ initialSession }) {
                             className="text-input"
                             value={formValues.subGenre}
                             onChange={(event) => updateField("subGenre", event.target.value)}
+                          />
+                        </div>
+                        <div className="field">
+                          <label className="field-label" htmlFor="secondaryGenre">
+                            Secondary Genre
+                          </label>
+                          <input
+                            id="secondaryGenre"
+                            className="text-input"
+                            value={formValues.secondaryGenre}
+                            onChange={(event) => updateField("secondaryGenre", event.target.value)}
                           />
                         </div>
                         <div className="field">
@@ -547,6 +563,19 @@ export default function PortalApp({ initialSession }) {
                           />
                         </div>
                         <div className="field">
+                          <label className="field-label" htmlFor="lyricsUrl">
+                            Lyrics URL
+                          </label>
+                          <input
+                            id="lyricsUrl"
+                            className="text-input"
+                            type="url"
+                            value={formValues.lyricsUrl}
+                            onChange={(event) => updateField("lyricsUrl", event.target.value)}
+                            placeholder="https://"
+                          />
+                        </div>
+                        <div className="field">
                           <label className="field-label" htmlFor="lyricsFile">
                             Attach Lyrics
                           </label>
@@ -567,6 +596,19 @@ export default function PortalApp({ initialSession }) {
                               {files.lyricsFile.name}
                             </div>
                           ) : null}
+                        </div>
+                        <div className="field">
+                          <label className="field-label" htmlFor="coverArtUrl">
+                            Cover Art URL
+                          </label>
+                          <input
+                            id="coverArtUrl"
+                            className="text-input"
+                            type="url"
+                            value={formValues.coverArtUrl}
+                            onChange={(event) => updateField("coverArtUrl", event.target.value)}
+                            placeholder="https://"
+                          />
                         </div>
                         <div className="field">
                           <label className="field-label" htmlFor="coverArtFile">
@@ -622,45 +664,6 @@ export default function PortalApp({ initialSession }) {
 
                     {currentStep.id === "publishing" ? (
                       <div className="field-grid">
-                        {releaseType === "single" ? (
-                          <>
-                            <div className="field">
-                              <label className="field-label" htmlFor="waterfallRelease">
-                                Waterfall Release?
-                              </label>
-                              <select
-                                id="waterfallRelease"
-                                className="select"
-                                value={formValues.waterfallRelease}
-                                onChange={(event) => updateField("waterfallRelease", event.target.value)}
-                              >
-                                {WATERFALL_OPTIONS.map((option) => (
-                                  <option key={option} value={option}>
-                                    {option}
-                                  </option>
-                                ))}
-                              </select>
-                            </div>
-                            {formValues.waterfallRelease === "Yes" ? (
-                              <div className="field field--full">
-                                <label className="field-label" htmlFor="waterfallTracklist">
-                                  Please indicate the titles and order of songs included in the release.
-                                </label>
-                                <textarea
-                                  id="waterfallTracklist"
-                                  className="textarea"
-                                  value={formValues.waterfallTracklist}
-                                  onChange={(event) => updateField("waterfallTracklist", event.target.value)}
-                                  placeholder="One track title per line."
-                                />
-                                {errors.waterfallTracklist ? (
-                                  <div className="field-help">{errors.waterfallTracklist}</div>
-                                ) : null}
-                              </div>
-                            ) : null}
-                          </>
-                        ) : null}
-
                         <div className="field field--full">
                           <label className="field-label" htmlFor="writersSplits">
                             Writer(s) and Splits
@@ -687,9 +690,9 @@ export default function PortalApp({ initialSession }) {
                           <label className="field-label" htmlFor="producerCredits">
                             Producer(s) / Other Credits
                           </label>
-                          <input
+                          <textarea
                             id="producerCredits"
-                            className="text-input"
+                            className="textarea"
                             value={formValues.producerCredits}
                             onChange={(event) => updateField("producerCredits", event.target.value)}
                           />

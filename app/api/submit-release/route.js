@@ -22,12 +22,17 @@ export async function POST(request) {
     }
 
     const parsedPayload = releasePayloadSchema.parse(JSON.parse(payloadText));
+    const normalizedPayload = {
+      ...parsedPayload,
+      dealTags: ["Distribution Only"],
+      distributor: "Fuga"
+    };
 
     const lyricsFile = formData.get("lyricsFile");
     const coverArtFile = formData.get("coverArtFile");
 
     const createdPage = await createReleaseSubmission(
-      parsedPayload,
+      normalizedPayload,
       {
         lyricsFile: lyricsFile instanceof File ? lyricsFile : null,
         coverArtFile: coverArtFile instanceof File ? coverArtFile : null
