@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;800&display=swap");
-
 /* cyrillic-ext */
 @font-face {
   font-family: "IBM Plex Mono";
@@ -81,64 +79,10 @@
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-/* devanagari */
-@font-face {
-  font-family: "Poppins";
-  font-style: normal;
-  font-weight: 500;
-  src: url(https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z11lFd2JQEl8qw.woff2) format("woff2");
-  unicode-range: U+0900-097F, U+1CD0-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B09;
-}
-
-/* latin-ext */
-@font-face {
-  font-family: "Poppins";
-  font-style: normal;
-  font-weight: 500;
-  src: url(https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1JlFd2JQEl8qw.woff2) format("woff2");
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-
-/* latin */
-@font-face {
-  font-family: "Poppins";
-  font-style: normal;
-  font-weight: 500;
-  src: url(https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLGT9Z1xlFd2JQEk.woff2) format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-/* devanagari */
-@font-face {
-  font-family: "Poppins";
-  font-style: normal;
-  font-weight: 800;
-  src: url(https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLDD4Z11lFd2JQEl8qw.woff2) format("woff2");
-  unicode-range: U+0900-097F, U+1CD0-1CF9, U+200C-200D, U+20A8, U+20B9, U+20F0, U+25CC, U+A830-A839, U+A8E0-A8FF, U+11B00-11B09;
-}
-
-/* latin-ext */
-@font-face {
-  font-family: "Poppins";
-  font-style: normal;
-  font-weight: 800;
-  src: url(https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLDD4Z1JlFd2JQEl8qw.woff2) format("woff2");
-  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-
-/* latin */
-@font-face {
-  font-family: "Poppins";
-  font-style: normal;
-  font-weight: 800;
-  src: url(https://fonts.gstatic.com/s/poppins/v24/pxiByp8kv8JHgFVrLDD4Z1xlFd2JQEk.woff2) format("woff2");
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
 :root {
   --font-heading: "Instrument Serif", Georgia, serif;
-  --font-body: "Poppins", "Helvetica Neue", Arial, sans-serif;
-  --font-meta: "Poppins", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-meta: "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-mono: "IBM Plex Mono", monospace;
   --black: #000000;
   --near-black: #0e0e0e;
@@ -158,8 +102,11 @@
   --meta-text: 1rem;
   --gutter: 6vw;
   --mobile-gutter: 24px;
-  --grid-gap: 11px;
+  --grid-gap: 18px;
   --header-height: 88px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
 }
 
 * {
@@ -289,13 +236,13 @@ main {
 }
 
 .section {
-  padding: 32px var(--gutter) 24px;
+  padding: 48px var(--gutter) 42px;
   border-bottom: 1px solid rgba(250, 250, 250, 0.08);
 }
 
 .section--portal {
-  padding-top: 28px;
-  padding-bottom: 28px;
+  padding-top: 52px;
+  padding-bottom: 56px;
   flex: 1;
   display: flex;
   align-items: flex-start;
@@ -354,12 +301,13 @@ main {
 
 .card {
   border: 1px solid rgba(250, 250, 250, 0.12);
-  padding: 22px;
+  border-radius: var(--radius-lg);
+  padding: 30px;
   min-height: 260px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 16px;
+  gap: 24px;
 }
 
 .card__label,
@@ -391,7 +339,8 @@ main {
 
 .panel {
   border: 1px solid rgba(250, 250, 250, 0.12);
-  padding: 24px;
+  border-radius: var(--radius-lg);
+  padding: 32px;
   background: rgba(14, 14, 14, 0.72);
 }
 
@@ -400,7 +349,8 @@ main {
 .step-panel,
 .summary-panel {
   border: 1px solid rgba(250, 250, 250, 0.12);
-  padding: 24px;
+  border-radius: var(--radius-lg);
+  padding: 34px;
   background: rgba(14, 14, 14, 0.72);
 }
 
@@ -417,7 +367,7 @@ main {
 .ghost-button,
 .tab-button,
 .release-option {
-  border-radius: 0;
+  border-radius: var(--radius-md);
   border: 1px solid rgba(250, 250, 250, 0.24);
   background: transparent;
   color: var(--off-white);
@@ -428,8 +378,8 @@ main {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 48px;
-  padding: 12px 18px;
+  min-height: 54px;
+  padding: 14px 22px;
   margin-top: 28px;
   text-decoration: none;
 }
@@ -446,8 +396,8 @@ main {
 }
 
 .ghost-button {
-  min-height: 44px;
-  padding: 10px 16px;
+  min-height: 48px;
+  padding: 12px 18px;
 }
 
 .ghost-button:hover,
@@ -460,12 +410,12 @@ main {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--grid-gap);
-  margin-top: 24px;
+  margin-top: 28px;
 }
 
 .release-option {
   text-align: left;
-  padding: 18px;
+  padding: 22px;
 }
 
 .release-option.is-active,
@@ -493,12 +443,12 @@ main {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--grid-gap);
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 
 .tab-button {
-  min-height: 104px;
-  padding: 14px;
+  min-height: 122px;
+  padding: 18px;
   text-align: left;
 }
 
@@ -524,17 +474,24 @@ main {
 .field-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px var(--grid-gap);
+  gap: 26px var(--grid-gap);
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
 }
 
 .field--full {
   grid-column: 1 / -1;
+}
+
+.field-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
 }
 
 .field-label {
@@ -550,11 +507,11 @@ main {
 .select,
 .file-input {
   width: 100%;
-  border-radius: 0;
+  border-radius: var(--radius-md);
   border: 1px solid rgba(250, 250, 250, 0.18);
   background: rgba(250, 250, 250, 0.02);
   color: var(--off-white);
-  padding: 14px 16px;
+  padding: 16px 18px;
 }
 
 .text-input:focus,
@@ -566,7 +523,7 @@ main {
 }
 
 .textarea {
-  min-height: 140px;
+  min-height: 160px;
   resize: vertical;
 }
 
@@ -575,9 +532,40 @@ main {
 .error-banner,
 .success-banner {
   border: 1px solid rgba(250, 250, 250, 0.12);
-  padding: 16px;
-  margin-top: 10px;
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+  margin-top: 12px;
   white-space: pre-wrap;
+}
+
+.lookup-banner {
+  border: 1px solid rgba(250, 250, 250, 0.2);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  margin-top: 12px;
+}
+
+.lookup-banner--error {
+  border-color: rgba(240, 82, 61, 0.6);
+}
+
+.lookup-results {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.lookup-result {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  text-align: left;
+  border: 1px solid rgba(250, 250, 250, 0.18);
+  border-radius: var(--radius-md);
+  background: rgba(250, 250, 250, 0.03);
+  color: var(--off-white);
+  padding: 16px 18px;
 }
 
 .track-preview strong,
@@ -598,7 +586,8 @@ main {
   align-items: center;
   gap: 10px;
   border: 1px solid rgba(250, 250, 250, 0.18);
-  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
 }
 
 .choice-pill input {
@@ -608,8 +597,8 @@ main {
 .step-actions {
   display: flex;
   justify-content: space-between;
-  gap: 14px;
-  margin-top: 28px;
+  gap: 18px;
+  margin-top: 36px;
 }
 
 .error-banner {

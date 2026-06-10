@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createReleaseSubmission } from "@/lib/notion";
+import { createReleaseSubmission, updateReleaseSubmission } from "@/lib/notion";
 import { readSessionToken, SESSION_COOKIE_NAME } from "@/lib/session";
 import { releasePayloadSchema } from "@/lib/validation";
 
@@ -31,14 +31,14 @@ export async function POST(request) {
     const lyricsFile = formData.get("lyricsFile");
     const coverArtFile = formData.get("coverArtFile");
 
-    const createdPage = await createReleaseSubmission(
-      normalizedPayload,
-      {
-        lyricsFile: lyricsFile instanceof File ? lyricsFile : null,
-        coverArtFile: coverArtFile instanceof File ? coverArtFile : null
-      },
-      session
-    );
+    const filePayload = {
+      lyricsFile: lyricsFile instanceof File ? lyricsFile : null,
+      coverArtFile: coverArtFile instanceof File ? coverArtFile : null
+    };
+
+    const createdPage = normalizedPayload.pageId
+      ? await updateReleaseSubmission(normalizedPayload.pageId, normalizedPayload, filePayload, session)
+      : await createReleaseSubmission(normalizedPayload, filePayload, session);
 
     return NextResponse.json({
       ok: true,

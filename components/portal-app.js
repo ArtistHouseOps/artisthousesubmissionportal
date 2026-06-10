@@ -47,6 +47,16 @@ export default function PortalApp({ initialSession }) {
   const [releaseType, setReleaseType] = useState("album");
   const [stepIndex, setStepIndex] = useState(0);
   const [formValues, setFormValues] = useState(INITIAL_FORM_VALUES);
+  const [editingPageId, setEditingPageId] = useState("");
+  const [lookupState, setLookupState] = useState({
+    type: "idle",
+    message: "",
+    matches: []
+  });
+  const [existingAssets, setExistingAssets] = useState({
+    lyrics: false,
+    coverArt: false
+  });
   const [files, setFiles] = useState({
     lyricsFile: null,
     coverArtFile: null
@@ -105,6 +115,93 @@ export default function PortalApp({ initialSession }) {
     });
   }
 
+  function applyExistingSubmission(match) {
+    setReleaseType(match.releaseType || "album");
+    setFormValues((current) => ({
+      ...current,
+      ...INITIAL_FORM_VALUES,
+      ...match.formValues
+    }));
+    setEditingPageId(match.pageId);
+    setExistingAssets(match.existingAssets || { lyrics: false, coverArt: false });
+    setFiles({
+      lyricsFile: null,
+      coverArtFile: null
+    });
+    setLookupState({
+      type: "loaded",
+      message: "Existing submission loaded. Updating this form will edit the current Notion row.",
+      matches: []
+    });
+    setErrors({});
+    setStatus({
+      type: "idle",
+      message: ""
+    });
+  }
+
+  function clearEditingState() {
+    setEditingPageId("");
+    setExistingAssets({
+      lyrics: false,
+      coverArt: false
+    });
+    setLookupState({
+      type: "idle",
+      message: "",
+      matches: []
+    });
+  }
+
+  async function handleFindExistingSubmission() {
+    if (!formValues.title.trim()) {
+      setLookupState({
+        type: "error",
+        message: "Enter a title first to look for an existing submission.",
+        matches: []
+      });
+      return;
+    }
+
+    setLookupState({
+      type: "loading",
+      message: "Checking Notion for an existing submission...",
+      matches: []
+    });
+
+    const response = await fetch(`/api/submissions/find?title=${encodeURIComponent(formValues.title.trim())}`);
+    const result = await response.json();
+
+    if (!response.ok) {
+      setLookupState({
+        type: "error",
+        message: result.error || "Could not check for existing submissions.",
+        matches: []
+      });
+      return;
+    }
+
+    if (!result.matches?.length) {
+      setLookupState({
+        type: "empty",
+        message: "No existing submission found for this title under your account.",
+        matches: []
+      });
+      return;
+    }
+
+    if (result.matches.length === 1) {
+      applyExistingSubmission(result.matches[0]);
+      return;
+    }
+
+    setLookupState({
+      type: "multiple",
+      message: "Multiple submissions matched this title. Choose the one you want to edit.",
+      matches: result.matches
+    });
+  }
+
   async function handleSubmit(event) {
     event?.preventDefault?.();
 
@@ -137,6 +234,7 @@ export default function PortalApp({ initialSession }) {
 
     const payload = {
       ...formValues,
+      pageId: editingPageId,
       releaseType
     };
 
@@ -168,9 +266,12 @@ export default function PortalApp({ initialSession }) {
 
     setStatus({
       type: "success",
-      message: "Release submitted successfully. The row has been added to the release schedule."
+      message: editingPageId
+        ? "Release updated successfully. The existing Notion row has been updated."
+        : "Release submitted successfully. The row has been added to the release schedule."
     });
     setFormValues(INITIAL_FORM_VALUES);
+    clearEditingState();
     setFiles({
       lyricsFile: null,
       coverArtFile: null
@@ -237,18 +338,33 @@ export default function PortalApp({ initialSession }) {
                       Signed in as {session.email}. Choose the release format before moving through
                       the submission tabs.
                     </p>
+                    {editingPageId ? (
+                      <div className="field-help">
+                        Editing existing {releaseType === "single" ? "Single" : "Album / EP"} submission. Release type is locked while editing.
+                      </div>
+                    ) : null}
                     <div className="release-switcher__grid">
                       <button
                         type="button"
                         className={`release-option ${releaseType === "album" ? "is-active" : ""}`}
-                        onClick={() => setReleaseType("album")}
+                        onClick={() => {
+                          if (!editingPageId) {
+                            setReleaseType("album");
+                          }
+                        }}
+                        disabled={Boolean(editingPageId)}
                       >
                         <strong>Album / EP</strong>
                       </button>
                       <button
                         type="button"
                         className={`release-option ${releaseType === "single" ? "is-active" : ""}`}
-                        onClick={() => setReleaseType("single")}
+                        onClick={() => {
+                          if (!editingPageId) {
+                            setReleaseType("single");
+                          }
+                        }}
+                        disabled={Boolean(editingPageId)}
                       >
                         <strong>Single</strong>
                       </button>
@@ -293,7 +409,38 @@ export default function PortalApp({ initialSession }) {
                             value={formValues.title}
                             onChange={(event) => updateField("title", event.target.value)}
                           />
+                          <div className="field-actions">
+                            <button className="ghost-button" type="button" onClick={handleFindExistingSubmission}>
+                              Find Existing Submission
+                            </button>
+                            {editingPageId ? (
+                              <button className="ghost-button" type="button" onClick={clearEditingState}>
+                                Stop Editing Existing
+                              </button>
+                            ) : null}
+                          </div>
                           {errors.title ? <div className="field-help">{errors.title}</div> : null}
+                          {lookupState.type !== "idle" ? (
+                            <div className={`lookup-banner lookup-banner--${lookupState.type === "error" ? "error" : "info"}`}>
+                              {lookupState.message}
+                            </div>
+                          ) : null}
+                          {lookupState.type === "multiple" ? (
+                            <div className="lookup-results">
+                              {lookupState.matches.map((match) => (
+                                <button
+                                  key={match.pageId}
+                                  type="button"
+                                  className="lookup-result"
+                                  onClick={() => applyExistingSubmission(match)}
+                                >
+                                  <strong>{match.formValues.title || "Untitled release"}</strong>
+                                  <span>{match.releaseType === "single" ? "Single" : "Album / EP"}</span>
+                                  <span>Updated {new Date(match.updatedAt).toLocaleDateString()}</span>
+                                </button>
+                              ))}
+                            </div>
+                          ) : null}
                         </div>
 
                         {releaseType === "single" ? (
@@ -596,6 +743,9 @@ export default function PortalApp({ initialSession }) {
                               {files.lyricsFile.name}
                             </div>
                           ) : null}
+                          {editingPageId && existingAssets.lyrics && !files.lyricsFile ? (
+                            <div className="field-help">An existing lyrics attachment will be kept unless you replace it.</div>
+                          ) : null}
                         </div>
                         <div className="field">
                           <label className="field-label" htmlFor="coverArtUrl">
@@ -631,6 +781,9 @@ export default function PortalApp({ initialSession }) {
                               <strong>Selected File</strong>
                               {files.coverArtFile.name}
                             </div>
+                          ) : null}
+                          {editingPageId && existingAssets.coverArt && !files.coverArtFile ? (
+                            <div className="field-help">An existing cover art attachment will be kept unless you replace it.</div>
                           ) : null}
                         </div>
                         <div className="field">
@@ -726,7 +879,7 @@ export default function PortalApp({ initialSession }) {
                         </button>
                       ) : (
                         <button className="button button--solid" type="button" onClick={handleSubmit} disabled={status.type === "loading"}>
-                          {status.type === "loading" ? "Submitting..." : "Submit Release"}
+                          {status.type === "loading" ? (editingPageId ? "Updating..." : "Submitting...") : editingPageId ? "Update Release" : "Submit Release"}
                         </button>
                       )}
                     </div>
