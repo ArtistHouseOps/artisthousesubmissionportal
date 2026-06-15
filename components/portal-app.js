@@ -155,7 +155,7 @@ export default function PortalApp({ initialSession }) {
     });
     setLookupState({
       type: "loaded",
-      message: "Existing submission loaded. Updating this form will edit the current Notion row.",
+      message: "Existing submission loaded. Updating this form will edit the current submission.",
       matches: []
     });
     setErrors({});
@@ -190,7 +190,7 @@ export default function PortalApp({ initialSession }) {
 
     setLookupState({
       type: "loading",
-      message: "Checking Notion for an existing submission...",
+      message: "Checking for an existing submission...",
       matches: []
     });
 
@@ -254,7 +254,7 @@ export default function PortalApp({ initialSession }) {
     setErrors({});
     setStatus({
       type: "loading",
-      message: "Submitting release to Artist House and Notion..."
+      message: "Submitting release to Artist House..."
     });
 
     const payload = {
@@ -292,7 +292,7 @@ export default function PortalApp({ initialSession }) {
     setStatus({
       type: "success",
       message: editingPageId
-        ? "Release updated successfully. The existing Notion row has been updated."
+        ? "Release updated successfully. The existing submission has been updated."
         : "Release submitted successfully. The row has been added to the release schedule."
     });
     setFormValues(INITIAL_FORM_VALUES);
@@ -346,7 +346,7 @@ export default function PortalApp({ initialSession }) {
                   <h2 className="denied-title">This Google account is not on the registered user list.</h2>
                   <p className="denied-copy">
                     Signed in as {session.email}. Ask the Artist House team to add this address to the
-                    Notion allowlist, then try again.
+                    approved user list, then try again.
                   </p>
                   <button className="button" onClick={handleLogout} type="button">
                     Sign Out
