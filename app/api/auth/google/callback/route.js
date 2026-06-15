@@ -14,6 +14,7 @@ export const runtime = "nodejs";
 export async function GET(request) {
   const env = getEnv();
   const requestUrl = new URL(request.url);
+  const redirectUri = new URL("/api/auth/google/callback", request.url).toString();
   const code = requestUrl.searchParams.get("code");
   const state = requestUrl.searchParams.get("state");
   const stateCookie = request.cookies.get(OAUTH_STATE_COOKIE_NAME)?.value;
@@ -38,7 +39,7 @@ export async function GET(request) {
       code,
       client_id: env.googleClientId,
       client_secret: env.googleClientSecret,
-      redirect_uri: env.googleRedirectUri,
+      redirect_uri: redirectUri,
       grant_type: "authorization_code"
     })
   });
